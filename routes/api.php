@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Packages\Student\Controller\StudentController;
+use \App\Packages\Exam\Controller\SubjectController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,10 +24,20 @@ Route::post('/student', [StudentController::class, 'store']);
 
 Route::get('/student', [StudentController::class,'index']);
 
-Route::get('/student/id/{id}', [StudentController::class,'findById']);
+Route::get('/student/{id}', [StudentController::class,'findById']);
 
-Route::get('/student/name/{name}', [StudentController::class,'findByName']);
+Route::put('/student/{id}', [StudentController::class,'update']);
 
-Route::put('/student/id/{id}', [StudentController::class,'update']);
+Route::delete('/student/{id}', [StudentController::class,'remove']);
 
-Route::delete('/student/id/{id}', [StudentController::class,'remove']);
+    //subject
+
+Route::post('/subject', [SubjectController::class, 'store']);
+
+Route::get('/subject', [SubjectController::class,'index']);
+
+Route::get('/subject/{id}', [SubjectController::class,'findById']);
+
+Route::put('/subject/{id}', [SubjectController::class,'update']);
+
+Route::delete('/subject/{id}', [SubjectController::class,'remove']);

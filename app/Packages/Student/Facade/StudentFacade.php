@@ -28,17 +28,13 @@ class StudentFacade
         return $this->studentService->studentById($id);
     }
 
-    public function studentByName($name): array
-    {
-        return $this->studentService->studentByName($name);
-    }
 
     public function updateStudent(string $name, string $id): Student
     {
         return $this->studentService->updateStudent($name, $id);
     }
 
-    public function removeStudent(string $id)
+    public function removeStudent(string $id) : void
     {
         $this->studentService->removeStudent($id);
     }

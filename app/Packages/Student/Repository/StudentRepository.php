@@ -26,11 +26,6 @@ class StudentRepository extends AbstractRepository
         return $this->find($id);
     }
 
-    public function studentByName($name) : array
-    {
-        return $this->findBy(['name'=> $name]);
-    }
-
     public function removeStudent(Student $student)
     {
         EntityManager::remove($student);

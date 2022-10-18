@@ -1,17 +1,18 @@
 <?php
 
-namespace App\Packages\Student\Controller;
+namespace App\Packages\Exam\Controller;
 
 use App\Http\Controllers\Controller;
-use App\Packages\Student\Facade\StudentFacade;
+use App\Packages\Exam\Facade\SubjectFacade;
 use Exception;
+use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class StudentController extends Controller
+class SubjectController extends Controller
 {
     public function __construct(
-        protected StudentFacade $studentFacade
+        protected SubjectFacade $subjectFacade
     )
     {
     }
@@ -22,21 +23,20 @@ class StudentController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
-            $studentName = $request->get('name');
+            $subjectDescription = $request->get('description');
 
-            $studentCreated = $this->studentFacade->enrollStudent($studentName);
+            $subjectCreated = $this->subjectFacade->enrollSubject($subjectDescription);
 
             $response = [
-                'id' => $studentCreated->getId(),
-                'name' => $studentCreated->getName()
+                'id' => $subjectCreated->getId(),
+                'description' => $subjectCreated->getDescription()
             ];
-                        
+
             return response()->json($response, 201);
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage());
         }
     }
-
 
     /**
      * @throws Exception
@@ -45,18 +45,17 @@ class StudentController extends Controller
     {
         try {
 
-            $students = $this->studentFacade->listStudents();
-            $studentsCollection = collect();
+            $subjects = $this->subjectFacade->listSubjects();
+            $subjectsCollection = collect();
 
-            foreach($students as $student) {
-                $studentsCollection->add([
-                    'id' => $student->getId(),
-                    'name' => $student->getName()
+            foreach($subjects as $subject) {
+                $subjectsCollection->add([
+                    'id' => $subject->getId(),
+                    'description' => $subject->getDescription()
                 ]);
             }
 
-
-            return response()->json($studentsCollection->toArray());
+            return response()->json($subjectsCollection->toArray());
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage());
         }
@@ -69,11 +68,11 @@ class StudentController extends Controller
     {
         try {
 
-            $student = $this->studentFacade->studentById($id);
+            $subject = $this->subjectFacade->subjectById($id);
 
             $response = [
-                'id' => $student->getId(),
-                'name' => $student->getName()
+                'id' => $subject->getId(),
+                'description' => $subject->getDescription()
             ];
 
             return response()->json($response);
@@ -88,13 +87,13 @@ class StudentController extends Controller
     public function update(Request $request, string $id): JsonResponse
     {
         try {
-            $name = $request->get('name');
+            $description = $request->get('description');
 
-            $this->studentFacade->updateStudent($name, $id);
+            $this->subjectFacade->updateSubject($description, $id);
 
             $response = [
                 'id' => $id,
-                'name' => $name
+                'description' => $description
             ];
 
             return response()->json($response);
@@ -109,7 +108,7 @@ class StudentController extends Controller
     public function remove(Request $request, string $id): JsonResponse
     {
         try {
-            $this->studentFacade->removeStudent($id);
+            $this->subjectFacade->removeSubject($id);
 
             return response()->json([],204 );
         } catch (Exception $exception) {

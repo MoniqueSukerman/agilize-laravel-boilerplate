@@ -31,11 +31,6 @@ class StudentService
         return $this->studentRepository->studentById($id);
     }
 
-    public function studentByName(string $name) : array
-    {
-        return $this->studentRepository->studentByName($name);
-    }
-
     public function updateStudent(string $name, string $id) : Student
     {
         $student = $this->studentById($id);
