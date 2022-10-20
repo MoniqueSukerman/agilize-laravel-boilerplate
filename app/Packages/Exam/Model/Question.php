@@ -2,9 +2,10 @@
 
 namespace App\Packages\Exam\Model;
 
-use Doctrine\Common\Collections\ArrayCollection;
+//use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Illuminate\Support\Str;
+use Doctrine\ORM\Mapping\ManyToOne;
 
 /**
  * @ORM\Entity
@@ -16,23 +17,23 @@ class Question
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
      */
-    private string $id;
+    public string $id;
 
     /**
      * @ORM\Column(type="string")
      */
-    private string $description;
+    public string $description;
 
     /**
      * @ManyToOne(targetEntity="Subject")
      */
-    private Subject $subject;
+    public Subject $subject;
 
-    /**
-     * @ORM\OneToMany(targetEntity="Alternative", mappedBy="question", cascade={"persist"})
-     * @var ArrayCollection|Alternative[]
-     */
-    protected ArrayCollection|array $alternatives;
+//    /**
+//     * @ORM\OneToMany(targetEntity="Alternative", mappedBy="question", cascade={"persist"})
+//     * @var ArrayCollection|Alternative[]
+//     */
+//    protected ArrayCollection|array $alternatives;
 
 
     public function __construct(string $description, Subject $subject)
@@ -40,7 +41,7 @@ class Question
         $this->id = Str::uuid()->toString();
         $this->description = $description;
         $this->subject = $subject;
-        $this->alternatives = new ArrayCollection;
+//        $this->alternatives = new ArrayCollection;
     }
 
     /**
@@ -70,6 +71,11 @@ class Question
     public function setDescription(string $description): void
     {
         $this->description = $description;
+    }
+
+    public function setSubject(Subject $subject): void
+    {
+        $this->subject = $subject;
     }
 
 }

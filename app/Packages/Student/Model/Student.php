@@ -4,7 +4,6 @@ namespace App\Packages\Student\Model;
 
 use Doctrine\ORM\Mapping as ORM;
 use Illuminate\Support\Str;
-use LaravelDoctrine\ORM\Serializers\JsonSerializer;
 
 /**
  * @ORM\Entity

@@ -3,7 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Packages\Student\Controller\StudentController;
-use \App\Packages\Exam\Controller\SubjectController;
+use App\Packages\Exam\Controller\SubjectController;
+use App\Packages\Exam\Controller\QuestionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,3 +42,15 @@ Route::get('/subject/{id}', [SubjectController::class,'findById']);
 Route::put('/subject/{id}', [SubjectController::class,'update']);
 
 Route::delete('/subject/{id}', [SubjectController::class,'remove']);
+
+//question
+
+Route::post('/question', [QuestionController::class, 'store']);
+
+Route::get('/question', [QuestionController::class,'index']);
+
+Route::get('/question/{id}', [QuestionController::class,'findById']);
+
+Route::put('/question/{id}', [QuestionController::class,'update']);
+
+Route::delete('/question/{id}', [QuestionController::class,'remove']);

@@ -3,15 +3,17 @@
 namespace App\Packages\Exam\Controller;
 
 use App\Http\Controllers\Controller;
-use App\Packages\Exam\Facade\SubjectFacade;
+use App\Packages\Exam\Facade\QuestionFacade;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Packages\Exam\Repository\QuestionRepository;
 
-class SubjectController extends Controller
+class QuestionController extends Controller
 {
     public function __construct(
-        protected SubjectFacade $subjectFacade
+        protected QuestionFacade $questionFacade,
+        protected  QuestionRepository $questionRepository
     )
     {
     }
@@ -22,13 +24,15 @@ class SubjectController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
-            $subjectDescription = $request->get('description');
+            $questionDescription = $request->get('description');
+            $subjectId = $request->get('subject_id');
 
-            $subjectCreated = $this->subjectFacade->enrollSubject($subjectDescription);
+            $questionCreated = $this->questionFacade->enrollQuestion($questionDescription, $subjectId);
 
             $response = [
-                'id' => $subjectCreated->getId(),
-                'description' => $subjectCreated->getDescription()
+                'id' => $questionCreated->getId(),
+                'description' => $questionCreated->getDescription(),
+                'subject_id' => $questionCreated->getSubject()->getId()
             ];
 
             return response()->json($response, 201);
@@ -44,17 +48,20 @@ class SubjectController extends Controller
     {
         try {
 
-            $subjects = $this->subjectFacade->listSubjects();
-            $subjectsCollection = collect();
+            $questions = $this->questionFacade->listQuestions();
 
-            foreach($subjects as $subject) {
-                $subjectsCollection->add([
-                    'id' => $subject->getId(),
-                    'description' => $subject->getDescription()
+            $questionsCollection = collect();
+
+
+            foreach($questions as $question) {
+                $questionsCollection->add([
+                    'id' => $question->getId(),
+                    'description' => $question->getDescription(),
+                    'subject_id' => $question->getSubject()->getId()
                 ]);
             }
 
-            return response()->json($subjectsCollection->toArray());
+            return response()->json($questionsCollection->toArray());
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage());
         }
@@ -67,11 +74,12 @@ class SubjectController extends Controller
     {
         try {
 
-            $subject = $this->subjectFacade->subjectById($id);
+            $question = $this->questionFacade->questionById($id);
 
             $response = [
-                'id' => $subject->getId(),
-                'description' => $subject->getDescription()
+                'id' => $question->getId(),
+                'description' => $question->getDescription(),
+                'subject_id' => $question->getSubject()->getId()
             ];
 
             return response()->json($response);
@@ -86,13 +94,16 @@ class SubjectController extends Controller
     public function update(Request $request, string $id): JsonResponse
     {
         try {
-            $description = $request->get('description');
 
-            $this->subjectFacade->updateSubject($description, $id);
+            $description = $request->get('description');
+            $subject = $request->get('subject_id');
+
+            $question = $this->questionFacade->updateQuestion($description, $id, $subject);
 
             $response = [
-                'id' => $id,
-                'description' => $description
+                'id' => $question->getId(),
+                'description' => $question->getDescription(),
+                'subject_id' => $question->getSubject()->getId()
             ];
 
             return response()->json($response);
@@ -107,7 +118,7 @@ class SubjectController extends Controller
     public function remove(Request $request, string $id): JsonResponse
     {
         try {
-            $this->subjectFacade->removeSubject($id);
+            $this->questionFacade->removeQuestion($id);
 
             return response()->json([],204 );
         } catch (Exception $exception) {
