@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Packages\Student\Controller\StudentController;
 use App\Packages\Exam\Controller\SubjectController;
 use App\Packages\Exam\Controller\QuestionController;
+use App\Packages\Exam\Controller\AlternativeController;
+use App\Packages\Exam\Controller\ExamController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,3 +56,25 @@ Route::get('/question/{id}', [QuestionController::class,'findById']);
 Route::put('/question/{id}', [QuestionController::class,'update']);
 
 Route::delete('/question/{id}', [QuestionController::class,'remove']);
+
+//alternatives
+
+Route::post('/alternative', [AlternativeController::class, 'store']);
+
+Route::get('/alternative', [AlternativeController::class,'index']);
+
+Route::get('/alternative/{id}', [AlternativeController::class,'findById']);
+
+Route::put('/alternative/{id}', [AlternativeController::class,'update']);
+
+Route::delete('/alternative/{id}', [AlternativeController::class,'remove']);
+
+//Exams
+
+Route::post('/exam', [ExamController::class, 'store']);
+
+Route::get('/exam', [ExamController::class,'index']);
+
+Route::get('/exam/{id}', [ExamController::class,'findById']);
+
+Route::delete('/exam/{id}', [ExamController::class,'remove']);

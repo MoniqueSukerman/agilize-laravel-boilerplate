@@ -2,17 +2,15 @@
 
 namespace App\Packages\Exam\Model;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Illuminate\Support\Str;
 use Doctrine\ORM\Mapping\ManyToOne;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="questions")
+ * @ORM\Table(name="alternatives")
  */
-class Question
+class Alternative
 {
     /**
      * @ORM\Id
@@ -26,23 +24,24 @@ class Question
     private string $description;
 
     /**
-     * @ManyToOne(targetEntity="Subject")
+     * @ORM\Column(type="boolean")
      */
-    private Subject $subject;
+    private bool $correct;
 
     /**
-     * @ORM\OneToMany(targetEntity="Alternative", mappedBy="question_id", cascade={"persist"})
-     * @var Collection|Alternative[]
+     * @ManyToOne(targetEntity="Question", inversedBy="alternatives")
+     * @var Question
      */
-    protected Collection|array $alternatives;
+    private Question $question;
 
 
-    public function __construct(string $description, Subject $subject)
+    public function __construct(string $description, bool $correct, Question $question)
     {
         $this->id = Str::uuid()->toString();
         $this->description = $description;
-        $this->subject = $subject;
-        $this->alternatives = new ArrayCollection();
+        $this->correct = $correct;
+        $this->question = $question;
+
     }
 
     /**
@@ -62,11 +61,19 @@ class Question
     }
 
     /**
-     * @return Subject
+     * @return boolean
      */
-    public function getSubject(): Subject
+    public function getCorrect(): bool
     {
-        return $this->subject;
+        return $this->correct;
+    }
+
+    /**
+     * @return Question
+     */
+    public function getQuestion(): Question
+    {
+        return $this->question;
     }
 
     public function setDescription(string $description): void
@@ -74,9 +81,9 @@ class Question
         $this->description = $description;
     }
 
-    public function setSubject(Subject $subject): void
+    public function setCorrect(bool $correct): void
     {
-        $this->subject = $subject;
+        $this->correct = $correct;
     }
 
 }

@@ -7,13 +7,11 @@ use App\Packages\Exam\Facade\QuestionFacade;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Packages\Exam\Repository\QuestionRepository;
 
 class QuestionController extends Controller
 {
     public function __construct(
-        protected QuestionFacade $questionFacade,
-        protected  QuestionRepository $questionRepository
+        protected QuestionFacade $questionFacade
     )
     {
     }
