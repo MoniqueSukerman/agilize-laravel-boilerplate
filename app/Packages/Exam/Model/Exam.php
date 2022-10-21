@@ -4,13 +4,14 @@ namespace App\Packages\Exam\Model;
 
 use App\Packages\Student\Model\Student;
 use DateTime;
-//use Doctrine\Common\Collections\ArrayCollection;
-//use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Illuminate\Support\Str;
-use Doctrine\ORM\Mapping\ManyToOne;
-use Doctrine\ORM\Mapping\OneToMany;
 use Ramsey\Uuid\Type\Integer;
+use App\Packages\Exam\Model\QuestionExam;
+use App\Packages\Exam\Model\Subject;
+use Doctrine\ORM\Mapping\ManyToOne;
 
 /**
  * @ORM\Entity
@@ -40,20 +41,20 @@ class Exam
     private \DateTime $createdAt;
 
     /**
-     * @ManyToOne(targetEntity="App\Packages\Student\Model\Student")
+     * @ORM\ManyToOne(targetEntity="App\Packages\Student\Model\Student")
      */
     private Student $student;
 
     /**
-     * @ManyToOne(targetEntity="Subject")
+     * @ORM\ManyToOne(targetEntity="Subject")
      */
     private Subject $subject;
 
-//    /**
-//     * @ORM\OneToMany(targetEntity="QuestionExam", mappedBy="exam", cascade={"persist"})
-//     * @var Collection|QuestionExam[]
-//     */
-//    private Collection|array $questions;
+    /**
+     * @ORM\OneToMany(targetEntity="QuestionExam", mappedBy="exam", cascade={"persist"})
+     * @var Collection|QuestionExam[]
+     */
+    private Collection|array $questions;
 
 
     public function __construct(Subject $subject, Student $student, int $numberOfQuestions)
@@ -64,7 +65,7 @@ class Exam
         $this->createdAt = new \DateTime('now');
         $this->subject = $subject;
         $this->student = $student;
-//        $this->questions = new ArrayCollection;
+        $this->questions = new ArrayCollection;
     }
 
     /**
@@ -118,6 +119,14 @@ class Exam
     public function setStatus(string $status): void
     {
         $this->status = $status;
+    }
+
+    public function addQuestion(QuestionExam $question) : void
+    {
+        if(!$this->questions->contains($question)) {
+            $question->setExam($this);
+            $this->questions->add($question);
+        }
     }
 
 }

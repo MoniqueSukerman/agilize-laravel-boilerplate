@@ -93,6 +93,28 @@ class ExamController extends Controller
         }
     }
 
+    public function submit(Request $request, string $id): JsonResponse
+    {
+        try {
+
+            $exam = $this->examFacade->examById($id);
+
+            $submitedExam = $this->examFacade->submitExam($exam);
+
+            $response = [
+                'id' => $submitedExam->getId(),
+                'status' => $submitedExam->getStatus(),
+                'numberofquestions' => $submitedExam->getNumberOfQuestions(),
+                'subject_id' => $submitedExam->getSubject()->getId(),
+                'student_id' => $submitedExam->getStudent()->getId()
+            ];
+
+            return response()->json($response);
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage());
+        }
+    }
+
     /**
      * @throws Exception
      */

@@ -77,4 +77,6 @@ Route::get('/exam', [ExamController::class,'index']);
 
 Route::get('/exam/{id}', [ExamController::class,'findById']);
 
+Route::put('/exam/{id}', [ExamController::class,'submit']);
+
 Route::delete('/exam/{id}', [ExamController::class,'remove']);

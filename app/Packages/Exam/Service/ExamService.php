@@ -38,6 +38,15 @@ class ExamService
         return $this->examRepository->examById($id);
     }
 
+    public function submitExam(Exam $exam) : Exam
+    {
+
+        $exam->setStatus('concluded');
+        $this->examRepository->addExam($exam);
+        return $exam;
+
+    }
+
     public function removeExam( string $id) : void
     {
         $exam = $this->examById($id);

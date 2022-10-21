@@ -28,6 +28,12 @@ class ExamFacade
         return $this->examService->examById($id);
     }
 
+    public function submitExam(Exam $exam) : Exam
+    {
+        return $this->examService->submitExam($exam);
+
+    }
+
     public function removeExam(string $id) : void
     {
         $this->examService->removeExam($id);
