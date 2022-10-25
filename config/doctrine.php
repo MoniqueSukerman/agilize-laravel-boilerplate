@@ -125,7 +125,9 @@ return [
     | DQL custom numeric functions
     |--------------------------------------------------------------------------
     */
-    'custom_numeric_functions'   => [],
+    'custom_numeric_functions'   => [
+        'RANDOM' => App\Packages\Base\Random::class
+    ],
     /*
     |--------------------------------------------------------------------------
     | DQL custom string functions

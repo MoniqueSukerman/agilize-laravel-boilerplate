@@ -4,9 +4,12 @@ namespace App\Packages\Exam\Controller;
 
 use App\Http\Controllers\Controller;
 use App\Packages\Exam\Facade\ExamFacade;
+use App\Packages\Exam\Model\Question;
+use App\Packages\Exam\Model\QuestionExam;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use PhpParser\Node\Expr\Cast\Object_;
 
 class ExamController extends Controller
 {
@@ -16,6 +19,8 @@ class ExamController extends Controller
     {
     }
 
+
+
     /**
      * @throws Exception
      */
@@ -24,16 +29,19 @@ class ExamController extends Controller
         try {
             $subjectId = $request->get('subject_id');
             $studentId = $request->get('student_id');
-            $numberOfQuestions = $request->get('numberofquestions');
+            $numberOfQuestions = $request->get('number_of_questions');
+
 
             $examCreated = $this->examFacade->enrollExam($subjectId, $studentId, $numberOfQuestions);
 
             $response = [
                 'id' => $examCreated->getId(),
                 'status' => $examCreated->getStatus(),
-                'numberofquestions' => $examCreated->getNumberOfQuestions(),
+                'number_of_questions' => $examCreated->getNumberOfQuestions(),
                 'subject_id' => $examCreated->getSubject()->getId(),
-                'student_id' => $examCreated->getStudent()->getId()
+                'student_id' => $examCreated->getStudent()->getId(),
+                'created_at' => $examCreated->getCreatedAt()->format('Y-m-d H:i:s'),
+//                'questions' => $questionsList
             ];
 
             return response()->json($response, 201);
@@ -58,9 +66,10 @@ class ExamController extends Controller
                 $examsCollection->add([
                     'id' => $exam->getId(),
                     'status' => $exam->getStatus(),
-                    'numberofquestions' => $exam->getNumberOfQuestions(),
+                    'number_of_questions' => $exam->getNumberOfQuestions(),
                     'subject_id' => $exam->getSubject()->getId(),
-                    'student_id' => $exam->getStudent()->getId()
+                    'student_id' => $exam->getStudent()->getId(),
+                    'created_at' => $exam->getCreatedAt()->format('Y-m-d H:i:s')
                 ]);
             }
 
@@ -82,9 +91,10 @@ class ExamController extends Controller
             $response = [
                 'id' => $exam->getId(),
                 'status' => $exam->getStatus(),
-                'numberofquestions' => $exam->getNumberOfQuestions(),
+                'number_of_questions' => $exam->getNumberOfQuestions(),
                 'subject_id' => $exam->getSubject()->getId(),
-                'student_id' => $exam->getStudent()->getId()
+                'student_id' => $exam->getStudent()->getId(),
+                'created_at' => $exam->getCreatedAt()->format('Y-m-d H:i:s')
             ];
 
             return response()->json($response);
@@ -97,16 +107,27 @@ class ExamController extends Controller
     {
         try {
 
+            $answers = $request->get('answers');
+
             $exam = $this->examFacade->examById($id);
 
-            $submitedExam = $this->examFacade->submitExam($exam);
+            $submittedExam = $this->examFacade->submitExam($exam, $answers);
+
+//            $grade = $submittedExam->getGrade();
 
             $response = [
-                'id' => $submitedExam->getId(),
-                'status' => $submitedExam->getStatus(),
-                'numberofquestions' => $submitedExam->getNumberOfQuestions(),
-                'subject_id' => $submitedExam->getSubject()->getId(),
-                'student_id' => $submitedExam->getStudent()->getId()
+                'id' => $submittedExam->getId(),
+                'status' => $submittedExam->getStatus(),
+                'number_of_questions' => $submittedExam->getNumberOfQuestions(),
+                'subject_id' => $submittedExam->getSubject()->getId(),
+                'student_id' => $submittedExam->getStudent()->getId(),
+                'created_at' => $submittedExam->getCreatedAt()->format('Y-m-d H:i:s'),
+                'submitted_at' => $submittedExam->getSubmittedAt()->format('Y-m-d H:i:s'),
+//                'answers' => [
+//                    'correct' => 'example',
+//                    'chosen' => 'example'
+//                ],
+                'grade' => $submittedExam->getGrade()
             ];
 
             return response()->json($response);

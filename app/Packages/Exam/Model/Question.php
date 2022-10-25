@@ -31,7 +31,7 @@ class Question
     private Subject $subject;
 
     /**
-     * @ORM\OneToMany(targetEntity="Alternative", mappedBy="question_id", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="Alternative", mappedBy="question_id", cascade={"persist", "remove"})
      * @var Collection|Alternative[]
      */
     protected Collection|array $alternatives;

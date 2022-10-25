@@ -4,6 +4,7 @@ namespace App\Packages\Exam\Repository;
 
 use App\Packages\Base\AbstractRepository;
 use App\Packages\Exam\Model\Alternative;
+use App\Packages\Exam\Model\Question;
 use LaravelDoctrine\ORM\Facades\EntityManager;
 
 class AlternativeRepository extends AbstractRepository
@@ -30,6 +31,20 @@ class AlternativeRepository extends AbstractRepository
     {
         EntityManager::remove($alternative);
         EntityManager::flush();
+    }
+
+    public function alternativesByQuestion(Question $question) : array
+    {
+        $queryBuilder = EntityManager::createQueryBuilder();
+
+        $query = $queryBuilder
+            ->select('u')
+            ->from(Alternative::class, 'u')
+            ->where("u.question = :question")
+            ->setParameter('question', $question)
+            ->getQuery();
+
+        return $query->getResult();
     }
 
 }

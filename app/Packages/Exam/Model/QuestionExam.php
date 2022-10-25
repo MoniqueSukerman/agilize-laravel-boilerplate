@@ -25,13 +25,18 @@ class QuestionExam
     private string $description;
 
     /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private string $rightAnswer;
+
+    /**
      * @ORM\ManyToOne(targetEntity="Exam", inversedBy="questions_exams")
      * @var Exam
      */
     private Exam $exam;
 
     /**
-     * @ORM\OneToMany(targetEntity="AlternativeExam", mappedBy="question", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="AlternativeExam", mappedBy="question", cascade={"persist", "remove"})
      * @var Collection|AlternativeExam[]
      */
     protected Collection|array $alternatives;
@@ -69,9 +74,30 @@ class QuestionExam
         return $this->exam;
     }
 
+    /**
+     * @return bool
+     */
+    public function getRightAnswer(): bool
+    {
+       return $this->rightAnswer;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getAlternatives(): Collection
+    {
+        return $this->alternatives;
+    }
+
     public function setExam(Exam $exam) : void
     {
         $this->exam = $exam;
+    }
+
+    public function setRightAnswer($rightAnswer) : void
+    {
+        $this->rightAnswer = $rightAnswer;
     }
 
     public function addAlternative(AlternativeExam $alternative) : void

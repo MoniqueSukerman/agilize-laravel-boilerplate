@@ -36,7 +36,7 @@ class AlternativeExam
      * @ORM\ManyToOne(targetEntity="QuestionExam", inversedBy="alternatives")
      * @var QuestionExam
      */
-    private QuestionExam $question;
+    private QuestionExam $questionExam;
 
 
     public function __construct(string $description, bool $correct, QuestionExam $question)
@@ -45,7 +45,7 @@ class AlternativeExam
         $this->description = $description;
         $this->correct = $correct;
         $this->chosen = false;
-        $this->question = $question;
+        $this->questionExam = $question;
     }
 
     /**
@@ -85,12 +85,17 @@ class AlternativeExam
      */
     public function getQuestion(): QuestionExam
     {
-        return $this->question;
+        return $this->questionExam;
     }
 
     public function setQuestion(QuestionExam $question): void
     {
-        $this->question = $question;
+        $this->questionExam = $question;
+    }
+
+    public function setChosen($chosen): void
+    {
+        $this->chosen = $chosen;
     }
 
 }

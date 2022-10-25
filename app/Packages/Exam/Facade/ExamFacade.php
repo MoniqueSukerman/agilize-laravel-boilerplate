@@ -28,9 +28,9 @@ class ExamFacade
         return $this->examService->examById($id);
     }
 
-    public function submitExam(Exam $exam) : Exam
+    public function submitExam(Exam $exam, $answers) : Exam
     {
-        return $this->examService->submitExam($exam);
+        return $this->examService->submitExam($exam, $answers);
 
     }
 

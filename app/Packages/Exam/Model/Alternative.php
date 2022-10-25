@@ -85,5 +85,4 @@ class Alternative
     {
         $this->correct = $correct;
     }
-
 }

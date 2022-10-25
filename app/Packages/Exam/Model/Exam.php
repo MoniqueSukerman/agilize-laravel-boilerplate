@@ -41,6 +41,11 @@ class Exam
     private \DateTime $createdAt;
 
     /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private \DateTime $submittedAt;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Packages\Student\Model\Student")
      */
     private Student $student;
@@ -51,7 +56,12 @@ class Exam
     private Subject $subject;
 
     /**
-     * @ORM\OneToMany(targetEntity="QuestionExam", mappedBy="exam", cascade={"persist"})
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private int $grade;
+
+    /**
+     * @ORM\OneToMany(targetEntity="QuestionExam", mappedBy="exam", cascade={"persist", "remove"})
      * @var Collection|QuestionExam[]
      */
     private Collection|array $questions;
@@ -80,7 +90,7 @@ class Exam
      * @return string
      */
     public function getStatus(): string
-    {
+        {
         return $this->status;
     }
 
@@ -116,9 +126,34 @@ class Exam
         return $this->createdAt;
     }
 
+    public function getSubmittedAt() : DateTime
+    {
+        return $this->submittedAt;
+    }
+
+    public function getExamQuestions() : Collection
+    {
+        return $this->questions;
+    }
+
+    public function setGrade($grade): void
+    {
+        $this->grade = $grade;
+    }
+
+    public function getGrade() : int
+    {
+        return $this->grade;
+    }
+
     public function setStatus(string $status): void
     {
         $this->status = $status;
+    }
+
+    public function setSubmittedAt(): void
+    {
+        $this->submittedAt = new DateTime('now');
     }
 
     public function addQuestion(QuestionExam $question) : void

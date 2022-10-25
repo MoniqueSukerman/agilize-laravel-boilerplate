@@ -5,6 +5,7 @@ namespace App\Packages\Exam\Facade;
 use App\Packages\Exam\Model\Alternative;
 use App\Packages\Exam\Service\AlternativeService;
 use App\Packages\Exam\Model\Question;
+use Exception;
 
 class AlternativeFacade
 {
@@ -14,7 +15,11 @@ class AlternativeFacade
     {
     }
 
-    public function enrollAlternative(string $description, bool $correct, string $questionId) : Alternative
+
+    /**
+     * @throws Exception
+     */
+    public function enrollAlternative(string $description, bool $correct, string $questionId) : Alternative|Exception
     {
         return $this->alternativeService->enrollAlternative($description,$correct, $questionId);
     }
