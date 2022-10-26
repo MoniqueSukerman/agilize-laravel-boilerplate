@@ -31,11 +31,6 @@ class AlternativeService
         return $alreadyExistentAlternativesQuantity < $limit;
     }
 
-    public function convertToAlternative ($alternative) : Alternative
-    {
-        return $alternative;
-    }
-
     public function isCorrectList(string $questionId) : array
     {
         $question = $this->questionRepository->questionById($questionId);
@@ -44,9 +39,9 @@ class AlternativeService
 
         $isCorrectList = Collect();
 
+        /**@var Alternative $alternative */
         foreach ($alternatives as $alternative){
-            $alternativeEntity = $this->convertToAlternative($alternative);
-            $isCorrect = $alternativeEntity->getCorrect();
+            $isCorrect = $alternative->getCorrect();
             $isCorrectList->add($isCorrect);
         }
 
@@ -54,20 +49,21 @@ class AlternativeService
 
     }
 
-    public function onlyOneCorrectAlternative($correct, $questionId) : bool
+    public function oneAndOnlyCorrectAlternative($correct, $questionId) : bool
     {
         $isCorrectList = $this->isCorrectList($questionId);
 
-        $firstRegister = count($isCorrectList) === 0;
-
         $correctAlternativeRegistered = in_array(true, $isCorrectList);
 
-        if($firstRegister){
-            return true;
-        } else {
-            return $correctAlternativeRegistered !== $correct;
+        if($correctAlternativeRegistered and $correct){
+            return false;
         }
 
+        if(count($isCorrectList) === 3 and !$correctAlternativeRegistered and !$correct){
+            return false;
+        }
+
+        return true;
     }
 
 
@@ -79,15 +75,28 @@ class AlternativeService
     {
         $underTheLimit = $this->alternativesUnderTheLimit($questionId);
 
-        $onlyOneCorrectAlternative = $this->onlyOneCorrectAlternative($correct, $questionId);
+        $onlyOneCorrectAlternative = $this->oneAndOnlyCorrectAlternative($correct, $questionId);
 
-        if($underTheLimit and $onlyOneCorrectAlternative){
-            $alternative = new Alternative($description, $correct, $this->questionRepository->questionById($questionId));
-            $this->alternativeRepository->addAlternative($alternative);
-            return $alternative;
-
+        if(strlen($description) > 150){
+            throw new Exception('150 characters is description the limit!');
         }
-        return new Exception('Já existem 4 alternativas cadastradas para essa questão');
+
+        if(strlen($description) < 10){
+            throw new Exception('Description need to have more than 10 characters');
+        }
+
+        if(!$underTheLimit){
+            throw new Exception('Each question has only 4 alternatives!');
+        }
+
+        if (!$onlyOneCorrectAlternative){
+            throw new Exception('One and only one correct answer allowed');
+        }
+
+        $alternative = new Alternative($description, $correct, $this->questionRepository->questionById($questionId));
+        $this->alternativeRepository->addAlternative($alternative);
+
+        return $alternative;
     }
 
     public function listAlternatives() : array
@@ -100,8 +109,19 @@ class AlternativeService
         return $this->alternativeRepository->alternativeById($id);
     }
 
+    /**
+     * @throws Exception
+     */
     public function updateAlternative(string|null $description, bool|null $correct, string $id) : Alternative
     {
+        if(strlen($description) > 150){
+            throw new Exception('150 characters is description the limit!');
+        }
+
+        if(strlen($description) < 10){
+            throw new Exception('Description need to have more than 10 characters');
+        }
+
         $alternative = $this->alternativeById($id);
 
         $alternative->setDescription($description);

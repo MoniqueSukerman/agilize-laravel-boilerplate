@@ -2,7 +2,6 @@
 
 namespace App\Packages\Exam\Model;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Illuminate\Support\Str;
 

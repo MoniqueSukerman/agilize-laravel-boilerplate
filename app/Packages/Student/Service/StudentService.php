@@ -4,6 +4,7 @@ namespace App\Packages\Student\Service;
 
 use App\Packages\Student\Model\Student;
 use App\Packages\Student\Repository\StudentRepository;
+use Exception;
 use LaravelDoctrine\ORM\Facades\EntityManager;
 
 class StudentService
@@ -14,11 +15,23 @@ class StudentService
     {
     }
 
+    /**
+     * @throws Exception
+     */
     public function enrollStudent(string $name): Student
     {
-            $student = new Student($name);
-            $this->studentRepository->addStudent($student);
-            return $student;
+
+        if(strlen($name) > 150){
+            throw new Exception('150 characters is the name limit!');
+        }
+
+        if(strlen($name) <= 3){
+            throw new Exception('Name need to have more than 3 characters');
+        }
+
+        $student = new Student($name);
+        $this->studentRepository->addStudent($student);
+        return $student;
     }
 
     public function listStudents() : array
@@ -31,8 +44,19 @@ class StudentService
         return $this->studentRepository->studentById($id);
     }
 
+    /**
+     * @throws Exception
+     */
     public function updateStudent(string $name, string $id) : Student
     {
+        if(strlen($name) > 150){
+            throw new Exception('150 characters is the name limit!');
+        }
+
+        if(strlen($name) < 3){
+            throw new Exception('Name need to have more than 3 characters');
+        }
+
         $student = $this->studentById($id);
 
         $student->setName($name);

@@ -4,7 +4,6 @@ namespace App\Packages\Exam\Repository;
 
 use App\Packages\Base\AbstractRepository;
 use App\Packages\Exam\Model\Exam;
-use App\Packages\Exam\Model\QuestionExam;
 use LaravelDoctrine\ORM\Facades\EntityManager;
 
 class ExamRepository extends AbstractRepository
@@ -14,12 +13,6 @@ class ExamRepository extends AbstractRepository
     public function addExam(Exam $exam)
     {
         EntityManager::persist($exam);
-        EntityManager::flush();
-    }
-
-    public function addQuestion(QuestionExam $question)
-    {
-        EntityManager::persist($question);
         EntityManager::flush();
     }
 

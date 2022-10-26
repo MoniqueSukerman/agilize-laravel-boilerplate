@@ -28,7 +28,10 @@ class ExamFacade
         return $this->examService->examById($id);
     }
 
-    public function submitExam(Exam $exam, $answers) : Exam
+    /**
+     * @throws \Exception
+     */
+    public function submitExam(Exam $exam, $answers) : array
     {
         return $this->examService->submitExam($exam, $answers);
 

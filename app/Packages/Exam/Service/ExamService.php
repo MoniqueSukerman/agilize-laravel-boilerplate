@@ -14,7 +14,13 @@ use App\Packages\Exam\Repository\QuestionExamRepository;
 use App\Packages\Exam\Repository\QuestionRepository;
 use App\Packages\Exam\Repository\SubjectRepository;
 use App\Packages\Student\Repository\StudentRepository;
-use Illuminate\Support\Collection;
+use DateInterval;
+
+use DateTime;
+use Doctrine\ORM\PersistentCollection;
+use Ramsey\Collection\Collection;
+
+use function PHPUnit\Framework\throwException;
 
 class ExamService
 {
@@ -77,7 +83,7 @@ class ExamService
 
         $this->examRepository->addExam($exam);
 
-            return $exam;
+        return $exam;
     }
 
     public function listExams() : array
@@ -97,7 +103,7 @@ class ExamService
             $chosenAlternative = $this->alternativeExamRepository->alternativeById($chosenAlternativeId);
             $chosenAlternative->setChosen(true);
             $question = $chosenAlternative->getQuestion();
-            $correctAlternativeId = $this->alternativeExamRepository->alternativeCorrectId($question)->getId();
+            $correctAlternativeId = $this->alternativeExamRepository->correctAlternative($question)->getId();
 
             if($chosenAlternativeId === $correctAlternativeId){
                 $question->setRightAnswer(true);
@@ -107,39 +113,101 @@ class ExamService
         }
     }
 
+    public function allQuestionsSubmitted(Exam $exam, array $answers): bool
+    {
+        $receivedAnswersAmount = count($answers);
+
+        $numberOfQuestions = count($exam->getExamQuestions());
+
+        return $receivedAnswersAmount === $numberOfQuestions;
+    }
+
+
+    public function timeUnderTheLimit($exam): bool
+    {
+        /**@var DateTime $createdAt */
+        $createdAt = $exam->getCreatedAt();
+
+        /**@var DateTime $submittedAt */
+        $submittedAt = $exam->getSubmittedAt();
+
+        $interval = new DateInterval('P3YT1H');
+
+        $limitTime = $createdAt->add($interval);
+
+        return $submittedAt >= $limitTime;
+    }
+
     public function setGrade(Exam $exam) : void
     {
         $totalRightAnswers = count($this->questionExamRepository->rightAnswers($exam));
-        $totalQuestions = $exam->getNumberOfQuestions();
+        $totalQuestions = count($exam->getExamQuestions());
 
         $grade = ($totalRightAnswers / $totalQuestions) * 10;
 
-        $exam->setGrade($grade);
+        $exam->setGrade(round($grade));
 
         $this->examRepository->addExam($exam);
     }
 
-    public function submitExam(Exam $exam, $answers) : Exam
+    /**
+     * @throws \Exception
+     */
+    public function submitExam(Exam $exam, $answers) : array
     {
-        $this->setChosenAlternative($answers);
 
         $exam->setSubmittedAt();
 
-        $createdAt = $exam->getCreatedAt();
-        $submittedAt = $exam->getSubmittedAt();
+        $timeIsUnderTheLimit = $this->timeUnderTheLimit($exam);
 
-        $interval = new \DateInterval('P3YT1H');
+        $allQuestionsSubmitted = $this->allQuestionsSubmitted($exam, $answers);
 
-        $limitTime = $createdAt->add($interval);
+        $examIsOpen = $exam->getStatus() === 'open';
 
-        if ($submittedAt <= $limitTime) {
-            $exam->setStatus('concluded');
-            $this->examRepository->addExam($exam);
+        if(!$examIsOpen){
+            throw new \Exception('Exam already submitted!');
         }
 
+        if(!$timeIsUnderTheLimit){
+            throw new \Exception('Time limit exceeded!');
+        }
+
+        if(!$allQuestionsSubmitted){
+            throw new \Exception('Submit all questions at once!');
+        }
+
+
+        $this->setChosenAlternative($answers);
+        $exam->setStatus('concluded');
+        $this->examRepository->addExam($exam);
         $this->setGrade($exam);
 
-        return $exam;
+        $answers = Collect();
+
+        $questions = $exam->getExamQuestions();
+
+        /**@var QuestionExam $question */
+        foreach ($questions as $question){
+            $answers->add(
+                [
+                    'question' => $question->getDescription(),
+                    'chosen' => $this->alternativeExamRepository->correctAlternative($question)->getDescription(),
+                    'correct' => $this->alternativeExamRepository->chosenAlternative($question)->getDescription()
+                ]
+            );
+        }
+
+        return [
+            'id' => $exam->getId(),
+            'status' => $exam->getStatus(),
+            'number_of_questions' => $exam->getNumberOfQuestions(),
+            'subject_id' => $exam->getSubject()->getId(),
+            'student_id' => $exam->getStudent()->getId(),
+            'created_at' => $exam->getCreatedAt()->format('Y-m-d H:i:s'),
+            'submitted_at' => $exam->getSubmittedAt()->format('Y-m-d H:i:s'),
+            'answers' => $answers,
+            'grade' => $exam->getGrade()
+        ];
 
     }
 

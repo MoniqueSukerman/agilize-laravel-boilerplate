@@ -31,24 +31,14 @@ class QuestionRepository extends AbstractRepository
     {
         $queryBuilder = EntityManager::createQueryBuilder();
 
-//        $sql = 'SELECT id from table ORDER BY RAND() LIMIT 100'
-
-
-
         $query = $queryBuilder
             ->select('q')
             ->from(Question::class,'q')
             ->where('q.subject = :subject')
             ->setParameter('subject', $subject)
-//            ->addSelect('RANDOM() as HIDDEN RANDOM')
-//            ->orderBy('q','RANDOM()')
+            ->orderBy('RANDOM()')
             ->setMaxResults($quantity)
             ->getQuery();
-
-//        $query = EntityManager::createQuery($dql);
-//        $questions = $query->getResult();
-
-//        var_dump($query->getDQL());
 
         return $query->getResult();
     }

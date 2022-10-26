@@ -11,5 +11,6 @@ create table exams
     status              varchar(255) not null,
     number_of_questions integer      not null,
     created_at          timestamp(0) not null,
-    submitted_at        timestamp(0) default NULL::timestamp without time zone
+    submitted_at        timestamp(0) default NULL::timestamp without time zone,
+    grade               integer
 );

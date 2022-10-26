@@ -4,12 +4,14 @@ namespace App\Packages\Exam\Controller;
 
 use App\Http\Controllers\Controller;
 use App\Packages\Exam\Facade\ExamFacade;
+use App\Packages\Exam\Model\AlternativeExam;
 use App\Packages\Exam\Model\Question;
 use App\Packages\Exam\Model\QuestionExam;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use PhpParser\Node\Expr\Cast\Object_;
+use Ramsey\Collection\Collection;
 
 class ExamController extends Controller
 {
@@ -34,6 +36,34 @@ class ExamController extends Controller
 
             $examCreated = $this->examFacade->enrollExam($subjectId, $studentId, $numberOfQuestions);
 
+            $questionsCollection = Collect();
+
+            $questions = $examCreated->getExamQuestions();
+
+            /**@var QuestionExam $question */
+            foreach ($questions as $question){
+
+                $alternativesCollection = Collect();
+
+                $alternatives = $question->getAlternatives();
+                /**@var AlternativeExam $alternative */
+                foreach ($alternatives as $alternative){
+                    $alternativesCollection->add([
+                        'id' => $alternative->getId(),
+                        'description' => $alternative->getDescription(),
+                    ]);
+
+                }
+
+                $questionsCollection->add(
+                    [
+                        'id' => $question->getId(),
+                        'description' => $question->getDescription(),
+                        'alternatives' => $alternativesCollection
+                    ]
+                );
+            }
+
             $response = [
                 'id' => $examCreated->getId(),
                 'status' => $examCreated->getStatus(),
@@ -41,7 +71,7 @@ class ExamController extends Controller
                 'subject_id' => $examCreated->getSubject()->getId(),
                 'student_id' => $examCreated->getStudent()->getId(),
                 'created_at' => $examCreated->getCreatedAt()->format('Y-m-d H:i:s'),
-//                'questions' => $questionsList
+                'questions' => $questionsCollection
             ];
 
             return response()->json($response, 201);
@@ -113,24 +143,7 @@ class ExamController extends Controller
 
             $submittedExam = $this->examFacade->submitExam($exam, $answers);
 
-//            $grade = $submittedExam->getGrade();
-
-            $response = [
-                'id' => $submittedExam->getId(),
-                'status' => $submittedExam->getStatus(),
-                'number_of_questions' => $submittedExam->getNumberOfQuestions(),
-                'subject_id' => $submittedExam->getSubject()->getId(),
-                'student_id' => $submittedExam->getStudent()->getId(),
-                'created_at' => $submittedExam->getCreatedAt()->format('Y-m-d H:i:s'),
-                'submitted_at' => $submittedExam->getSubmittedAt()->format('Y-m-d H:i:s'),
-//                'answers' => [
-//                    'correct' => 'example',
-//                    'chosen' => 'example'
-//                ],
-                'grade' => $submittedExam->getGrade()
-            ];
-
-            return response()->json($response);
+            return response()->json($submittedExam);
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage());
         }
